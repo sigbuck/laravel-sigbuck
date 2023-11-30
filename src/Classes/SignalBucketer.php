@@ -11,6 +11,16 @@ use Illuminate\Support\Facades\Log;
 /**
  * @property ?string $signal_url
  * @property ?array $meta_data
+ * @property Client $client
+ * @property SignalEntity $entity
+ * @method static SignalBucketer success(string $message, string $title = "")
+ * @method static SignalBucketer info(string $message, string $title = "")
+ * @method static SignalBucketer broadcast(string $message, string $title = "")
+ * @method static SignalBucketer warning(string $message, string $title = "")
+ * @method static SignalBucketer critical(string $message, string $title = "")
+ * @method static SignalBucketer withURL(string $url, string $btn_text)
+ * @method static SignalBucketer withData(array $arr)
+ * /
  */
 class SignalBucketer
 {
@@ -63,12 +73,12 @@ class SignalBucketer
             ];
         }catch (\Exception $ex){
             if($ex->getCode()===401){
-				Log::error("Could not authenticate SignalBucket project. Please check that valid project key is passed in .env");
+                Log::error("Could not authenticate SignalBucket project. Please check that valid project key is passed in .env");
             }else if($ex->getCode()===422){
 
             }else{
-				Log::error($ex);
-			}
+                Log::error($ex);
+            }
 
             return [
                 "success" => false,
@@ -79,6 +89,14 @@ class SignalBucketer
 
     }
 
+
+    /**
+     * Queue and Send the current signal
+     *
+     * @param string $message Required
+     * @param string $title
+     * @return SignalBucketer return this class to allow chaining
+     */
     public function send(): void
     {
 
@@ -101,11 +119,15 @@ class SignalBucketer
         }
 
     }
-    private function queue_signal(SignalEntity $entity) {
-        // TODO: Nicer conversion
-        $this->entity = $entity;
-    }
 
+
+    /**
+     * Send an 'SUCCESS' class signal
+     *
+     * @param string $message Required
+     * @param string $title
+     * @return SignalBucketer return this class to allow chaining
+     */
     public function success(string $message, string $title=""): SignalBucketer
     {
         $this->debugLog("Queueing INFO notification");
@@ -113,6 +135,14 @@ class SignalBucketer
         $this->entity = $s;
         return $this;
     }
+
+    /**
+     * Send an 'INFO' class signal
+     *
+     * @param string $message Required
+     * @param string $title
+     * @return SignalBucketer return this class to allow chaining
+     */
     public function info(string $message, string $title=""): SignalBucketer
     {
         $this->debugLog("Queueing INFO notification");
@@ -120,6 +150,15 @@ class SignalBucketer
         $this->entity = $s;
         return $this;
     }
+
+
+    /**
+     * Send an 'BROADCAST' class signal
+     *
+     * @param string $message Required
+     * @param string $title
+     * @return SignalBucketer return this class to allow chaining
+     */
     public function broadcast(string $message, string $title=""): SignalBucketer
     {
         $this->debugLog("Queueing BROADCAST notification");
@@ -127,6 +166,15 @@ class SignalBucketer
         $this->entity = $s;
         return $this;
     }
+
+
+    /**
+     * Send an 'WARNING' class signal
+     *
+     * @param string $message Required
+     * @param string $title
+     * @return SignalBucketer return this class to allow chaining
+     */
     public function warning(string $message, string $title=""): SignalBucketer
     {
         $this->debugLog("Queueing WARNING notification");
@@ -134,6 +182,15 @@ class SignalBucketer
         $this->entity = $s;
         return $this;
     }
+
+
+    /**
+     * Send an 'CRITICAL' class signal
+     *
+     * @param string $message Required
+     * @param string $title
+     * @return SignalBucketer return this class to allow chaining
+     */
     public function critical(string $message, string $title=""): SignalBucketer
     {
         $this->debugLog("Queueing CRITICAL notification");
@@ -141,20 +198,47 @@ class SignalBucketer
         $this->entity = $s;
         return $this;
     }
+
+
+    /**
+     * Add a target URL to the signal
+     *
+     * @param string $url Required
+     * @param string $btn_text Required
+     * @return SignalBucketer return this class to allow chaining
+     */
     public function withURL(string $url, string $btn_text): SignalBucketer
     {
         $this->debugLog("Calling withURL with $url");
         $this->signal_url = "$btn_text|$url";
         return $this;
     }
+
+
+    /**
+     * Add a metadata to the signal
+     *
+     * @param array $arr Required
+     * @return SignalBucketer return this class to allow chaining
+     */
     public function withData(array $arr): SignalBucketer
     {
         $this->debugLog("setting metadata - " . json_encode($arr));
         $this->meta_data = $arr;
         return $this;
     }
+
+
+    /**
+     * Write debug messages
+     *
+     * @param string $str Required
+     * @return void
+     */
     private function debugLog($str): void
     {
-        Log::debug("SignalBucket: $str");
+        if( config('app.debug') ) {
+            Log::debug("SignalBucket: $str");
+        }
     }
 }
