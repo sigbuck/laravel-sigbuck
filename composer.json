@@ -1,0 +1,71 @@
+{
+    "name": "sigbuck/laravel-signalbucket",
+    "description": "Official SignalBucket integration for Laravel applications",
+	"homepage": "https://github.com/sigbuck/laravel-sigbuck",
+    "keywords": [
+        "Signalbucket",
+        "signal bucket",
+        "realtime notifications",
+		"instant notifications",
+		"native log"
+    ],
+    "license": [
+        "MIT"
+    ],
+    "authors": [
+        {
+            "name": "Mohammed Isma",
+            "email": "contact@signalbucket.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Sigbuck\\LaravelSignalbucket\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+		"guzzlehttp/guzzle": ">=7.2",
+        "orchestra/testbench": "^8.15",
+		"nunomaduro/collision": "^7.0",
+		"nunomaduro/larastan": "^2.4",
+		"pestphp/pest": "^2.0",
+		"pestphp/pest-plugin-laravel": "^2.0",
+		"phpstan/extension-installer": "^1.1",
+		"phpstan/phpstan-deprecation-rules": "^1.0",
+		"phpstan/phpstan-phpunit": "^1.0",
+		"phpunit/phpunit": "^10.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/",
+            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare"
+        ],
+        "clear": "@php ../vendor/bin/testbench package:purge-skeleton --ansi",
+        "prepare": "@php ../vendor/bin/testbench package:discover --ansi",
+        "build": "@php ../vendor/bin/testbench workbench:build --ansi",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+			"@php ../vendor/bin/testbench serve"
+        ],
+		"analyse": "vendor/bin/phpstan analyse",
+		"test": "vendor/bin/pest",
+		"test-coverage": "vendor/bin/pest --coverage"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    }
+}
